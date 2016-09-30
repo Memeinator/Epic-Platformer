@@ -33,7 +33,10 @@ var SCREEN_WIDTH = canvas.width;
 var SCREEN_HEIGHT = canvas.height;
 
 // Grid
-var LAYER_COUNT = 4;
+
+
+
+var LAYER_COUNT = 5;
 var MAP = { tw: 60, th: 15 };
 var TILE = 35;
 var TILESET_TILE = TILE * 2;
@@ -43,8 +46,8 @@ var TILESET_COUNT_X = 14;
 var TILESET_COUNT_Y = 14;
 
 //var LAYER_BACKGOUND = 0;
-var LAYER_PLATFORMS = 0;
-var LAYER_LADDERS = 1;
+var LAYER_PLATFORMS = 1;
+var LAYER_LADDERS = 2;
 
 // Collisions
 // abitrary choice for 1m
@@ -61,6 +64,12 @@ var ACCEL = MAXDX * 2;
 var FRICTION = MAXDX * 6;
 // (a large) instantaneous jump impulse
 var JUMP = METER * 1500;
+
+var ENEMY_MAXDX = METER * 5;
+var ENEMY_ACCEL = ENEMY_MAXDX * 2;
+var enemies = [];
+
+var LAYER_OBJECT_ENEMIES = 4;
 
 // load the image to use for the level tiles
 var tileset = document.createElement("img");
@@ -83,12 +92,14 @@ var sfxFire;
 
 function initialize() {
 	
+	
+	
 	musicBackground = new Howl(
 	{
 		urls: ["Superhero_violin_no_intro.ogg"],
 		loop: true,
 		buffer: true,
-		volume: 0.01
+		volume: 0.1
 	} );
 	musicBackground.play();
 	sfxFire = new Howl(
@@ -122,6 +133,20 @@ function initialize() {
 			}
 		}
 	}
+	
+	// add enemies
+	idx = 0;
+	for(var y = 0; y < level1.layers[LAYER_OBJECT_ENEMIES].height; y++) {
+		for(var x = 0; x < level1.layers[LAYER_OBJECT_ENEMIES].width; x++) {
+			if(level1.layers[LAYER_OBJECT_ENEMIES].data[idx] != 0) {
+				var px = tileToPixel(x);
+				var py = tileToPixel(y);
+				var e = new Enemy(px, py);
+				enemies.push(e);
+			}
+			idx++;
+		}
+	}
 }
 
 initialize();
@@ -146,6 +171,12 @@ function run()
 	player.update(deltaTime);
 	drawMap();
 	player.draw();
+	
+	for(var i=0; i<enemies.length; i++)
+	{
+		enemies[i].update(deltaTime);
+		enemies[i].draw();
+	}
 	
 	
 	for (var i = 0; i <player.lives; ++i)
@@ -245,7 +276,7 @@ function drawMap()
 			
 			for( var x = startX; x < startX + maxTiles; x++ )
 			{
-				if( level1.layers[layerIdx].data[idx] != 0 )
+				if( level1.layers[layerIdx].data[idx] != 0 && layerIdx != LAYER_OBJECT_ENEMIES)
 				{
 					// the tiles in the Tiled map are base 1 (meaning a value of 0 means no tile), so subtract one from the tileset id to get the
 					// correct tile

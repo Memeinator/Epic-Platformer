@@ -24,7 +24,7 @@ var Player = function() {
 	}
 	
 	this.startPosition = new Vector2 ();
-	this.startPosition.set(4*TILE, 7*TILE); //Tile is the width of the tile
+	this.startPosition.set(1*TILE, 12*TILE); //Tile is the width of the tile
 	
 	this.position = new Vector2();
 	this.position.set(this.startPosition.x, this.startPosition.y);
